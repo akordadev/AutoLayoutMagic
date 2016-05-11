@@ -47,26 +47,17 @@ class ViewController: NSViewController, NSXMLParserDelegate {
     var currentNode = NSXMLElement(name: "document")
     var outputXml: NSXMLDocument!
     var parser = NSXMLParser()
+    var usingAspectRatioGlobal = false
     
     let supportedViews = ["view", "imageView", "label", "button"]
     
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    private func beginParsing() {
+        
         outputXml = NSXMLDocument()
         outputXml.version = "1.0"
         outputXml.characterEncoding = "UTF-8"
-        // Do any additional setup after loading the view.
-    }
-
-    override var representedObject: AnyObject? {
-        didSet {
-        // Update the view, if already loaded.
-        }
-    }
-    
-    private func beginParsing() {
-        let filePath = "/Users/mcielecki/Code/storybots-ios/Storybots/Base.lproj/Test.storyboard"
+        
+        let filePath = "/Users/mcielecki/Code/storybots-ios/Storybots/test.storyboard"
         let xmlFile = NSData(contentsOfFile: filePath)
         parser = NSXMLParser(data: xmlFile!)
         parser.delegate = self
@@ -78,7 +69,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         
         //create file
         let fileManager = NSFileManager()
-        fileManager.createFileAtPath("/Users/mcielecki/Code/storybots-ios/Storybots/Base.lproj/MCTest.storyboard", contents: prettyOutput.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil)
+        fileManager.createFileAtPath(filePath, contents: prettyOutput.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil)
     }
     
     @IBAction func generateLayoutButtonPressed(sender: AnyObject) {
@@ -113,7 +104,13 @@ class ViewController: NSViewController, NSXMLParserDelegate {
                 currentView = view
                 currentView?.parentView = parentView
                 if elementName == "imageView" {
-                    currentView?.usingAspectRatio = true
+                    let XMLattribute = NSXMLNode(kind: .AttributeKind)
+                    XMLattribute.name = "minimumScaleFactor"
+                    XMLattribute.stringValue = "0.5"
+                    currentNode.addAttribute(XMLattribute)
+                    if usingAspectRatioGlobal {
+                        currentView?.usingAspectRatio = true
+                    }
                 }
             }
         }
