@@ -93,6 +93,7 @@
 				TargetAttributes = {
 					0EFCB3381CD924EF00980F88 = {
 						CreatedOnToolsVersion = 7.3;
+						DevelopmentTeam = Z677AU3RYN;
 					};
 				};
 			};
@@ -236,10 +237,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = AutoLayoutMagic/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.ocdrummer47.AutoLayoutMagic;
+				PRODUCT_BUNDLE_IDENTIFIER = com.akorda.AutoLayoutMagic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -248,10 +250,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = AutoLayoutMagic/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.ocdrummer47.AutoLayoutMagic;
+				PRODUCT_BUNDLE_IDENTIFIER = com.akorda.AutoLayoutMagic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -275,6 +278,7 @@
 				0EFCB34A1CD924EF00980F88 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
