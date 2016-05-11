@@ -12,8 +12,6 @@
 //    Support negative coords
 //    Auto set min font size, and Align centers, for labels
 
-// aspect ratio <constraint firstAttribute="width" secondItem="Xf3-5x-I0k" secondAttribute="height" multiplier="5:2" id="LdZ-O7-Tcn"/>
-
 import Cocoa
 
 struct Rectangle {
@@ -68,7 +66,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
     }
     
     private func beginParsing() {
-        let filePath = "/Users/mcielecki/Code/storybots-ios/Storybots/Test.storyboard"
+        let filePath = "/Users/mcielecki/Code/storybots-ios/Storybots/Base.lproj/Test.storyboard"
         let xmlFile = NSData(contentsOfFile: filePath)
         parser = NSXMLParser(data: xmlFile!)
         parser.delegate = self
@@ -80,7 +78,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         
         //create file
         let fileManager = NSFileManager()
-        fileManager.createFileAtPath("/Users/mcielecki/Code/storybots-ios/Storybots/MCTest.storyboard", contents: prettyOutput.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil)
+        fileManager.createFileAtPath("/Users/mcielecki/Code/storybots-ios/Storybots/Base.lproj/MCTest.storyboard", contents: prettyOutput.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil)
     }
     
     @IBAction func generateLayoutButtonPressed(sender: AnyObject) {
@@ -88,8 +86,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
     }
     
     func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String]) {
-        
-        //print(elementName)
+
         let newChild = NSXMLElement(name: elementName)
         
         for (key, value) in attributeDict {
