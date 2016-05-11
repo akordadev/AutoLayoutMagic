@@ -5,12 +5,7 @@
 //  Created by Matt Cielecki on 5/3/16.
 //  Copyright © 2016 Matt Cielecki. All rights reserved.
 //
-
-// THIS DOES NOT WORK FOR VIEWS THAT HAVE NEGATIVE COORDS
-
-// Coming features
-//    Support negative coords
-//    Auto set min font size, and Align centers, for labels
+//  https://github.com/akordadev/AutoLayoutMagic/
 
 import Cocoa
 
@@ -38,7 +33,9 @@ class View {
 class ViewController: NSViewController, NSXMLParserDelegate {
 
     @IBOutlet weak var filePathTextField: NSTextField!
-    @IBOutlet weak var viewTextField: NSTextField!
+    @IBOutlet weak var aspectRatioCheckBox: NSButton!
+    @IBOutlet weak var widthRadioButton: NSButton!
+    @IBOutlet weak var heightRadioButton: NSButton!
     
     //Used to assign a new parent, when encountering a </subviews>
     var currentView: View? = nil
@@ -47,7 +44,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
     var currentNode = NSXMLElement(name: "document")
     var outputXml: NSXMLDocument!
     var parser = NSXMLParser()
-    var usingAspectRatioGlobal = false
+    var aspectRatioHeight = true
     
     let supportedViews = ["view", "imageView", "label", "button"]
     
@@ -57,30 +54,160 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         outputXml.version = "1.0"
         outputXml.characterEncoding = "UTF-8"
         
-        let filePath = "/Users/mcielecki/Code/storybots-ios/Storybots/test.storyboard"
-        let xmlFile = NSData(contentsOfFile: filePath)
-        parser = NSXMLParser(data: xmlFile!)
+        guard let filePath = filePathTextField.accessibilityValue() else {
+            return
+        }
+        guard let xmlFile = NSData(contentsOfFile: filePath) else {
+            let alert = NSAlert()
+            alert.alertStyle = NSAlertStyle.CriticalAlertStyle
+            alert.messageText = "File not found"
+            alert.addButtonWithTitle("Let me double check")
+            alert.runModal()
+            return
+        }
+        parser = NSXMLParser(data: xmlFile)
         parser.delegate = self
         parser.parse()
         
-        //pretty print XML for debug
         let prettyOutput = outputXml.XMLStringWithOptions(Int(NSXMLNodePrettyPrint))
-        print(prettyOutput)
         
         //create file
         let fileManager = NSFileManager()
         fileManager.createFileAtPath(filePath, contents: prettyOutput.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil)
     }
     
+    // MARK: IBActions
+    
+    @IBAction func aspectRatioCheck(sender: AnyObject) {
+        widthRadioButton.enabled = aspectRatioCheckBox.state == NSOnState
+        heightRadioButton.enabled = aspectRatioCheckBox.state == NSOnState
+    }
+    
     @IBAction func generateLayoutButtonPressed(sender: AnyObject) {
         beginParsing()
     }
+    
+    @IBAction func heightRadioSelected(sender: AnyObject) {
+        widthRadioButton.state = NSOffState
+        heightRadioButton.state = NSOnState
+        aspectRatioHeight = true
+    }
+    
+    @IBAction func widthRadioSelected(sender: AnyObject) {
+        widthRadioButton.state = NSOnState
+        heightRadioButton.state = NSOffState
+        aspectRatioHeight = false
+    }
+    
+    private func generateConstraints(currentView: View, constraintParentNode: NSXMLElement) {
+        // 4 constraints per child view
+        for index in 1...4 {
+            let constraintChild = NSXMLElement(name: "constraint")
+            var attributeData: [String : String] = [:]
+            //width
+            switch index {
+            case 1:
+                //WIDTH
+                if !currentView.usingAspectRatio || !aspectRatioHeight {
+                    attributeData["firstItem"] = currentView.id
+                    attributeData["firstAttribute"] = "width"
+                    attributeData["secondItem"] = currentView.parentView?.id
+                    attributeData["secondAttribute"] = "width"
+                    attributeData["multiplier"] = "\(currentView.rect!.width)/\(currentView.parentView!.rect!.width)"
+                    attributeData["id"] = generateGUID()
+                }
+                else {
+                    continue
+                }
+            case 2:
+                //HEIGHT
+                if !currentView.usingAspectRatio || aspectRatioHeight {
+                    attributeData["firstItem"] = currentView.id
+                    attributeData["firstAttribute"] = "height"
+                    attributeData["secondItem"] = currentView.parentView?.id
+                    attributeData["secondAttribute"] = "height"
+                    attributeData["multiplier"] = "\(currentView.rect!.height)/\(currentView.parentView!.rect!.height)"
+                    attributeData["id"] = generateGUID()
+                }
+                else {
+                    continue
+                }
+            case 3:
+                //TRAILING
+                if currentView.rect?.x <= 0 {
+                    //<constraint firstItem="CHILD ID" firstAttribute="leading" secondItem="PARENT ID" secondAttribute="leading" id="yx8-GH-Noo"/>
+                    attributeData["firstItem"] = currentView.id
+                    attributeData["firstAttribute"] = "leading"
+                    attributeData["secondItem"] = currentView.parentView?.id
+                    attributeData["secondAttribute"] = "leading"
+                    attributeData["id"] = generateGUID()
+                }
+                else {
+                    attributeData["firstAttribute"] = "trailing"
+                    attributeData["secondItem"] = currentView.id
+                    attributeData["secondAttribute"] = "leading"
+                    //Using ! due to string output being "Optional(132)" instead of "132"
+                    attributeData["multiplier"] = "\(currentView.parentView!.rect!.width)/\(currentView.rect!.x)"
+                    attributeData["id"] = generateGUID()
+                }
+            case 4:
+                //BOTTOM
+                if currentView.rect?.y <= 0 {
+                    attributeData["firstItem"] = currentView.id
+                    attributeData["firstAttribute"] = "top"
+                    attributeData["secondItem"] = currentView.parentView?.id
+                    attributeData["secondAttribute"] = "top"
+                    attributeData["id"] = generateGUID()
+                }
+                else {
+                    attributeData["firstAttribute"] = "bottom"
+                    attributeData["secondItem"] = currentView.id
+                    attributeData["secondAttribute"] = "top"
+                    attributeData["multiplier"] = "\(currentView.parentView!.rect!.height)/\(currentView.rect!.y)"
+                    attributeData["id"] = generateGUID()
+                }
+            default:
+                assert(true, "shouldn't be any other case other than 1...4")
+            }
+            for attribute in attributeData {
+                let XMLattribute = NSXMLNode(kind: .AttributeKind)
+                XMLattribute.name = attribute.0
+                XMLattribute.stringValue = attribute.1
+                constraintChild.addAttribute(XMLattribute)
+            }
+            constraintParentNode.addChild(constraintChild)
+            attributeData = [:]
+        }
+    }
+    
+    private func generateGUID() -> String {
+        let allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        let allowedCharsCount = UInt32(allowedChars.characters.count)
+        var randomString = ""
+        
+        for index in (1...10) {
+            if index == 4 || index == 7 {
+                randomString += "-"
+            }
+            else {
+                let randomNum = Int(arc4random_uniform(allowedCharsCount))
+                let newCharacter = allowedChars[allowedChars.startIndex.advancedBy(randomNum)]
+                randomString += String(newCharacter)
+            }
+        }
+        return randomString
+    }
+    
+    // MARK:  NSXMLParserDelegate Functions
     
     func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String]) {
 
         let newChild = NSXMLElement(name: elementName)
         
         for (key, value) in attributeDict {
+            if elementName == "label" && key == "baselineAdjustment" {
+                continue
+            }
             let attribute = NSXMLNode(kind: .AttributeKind)
             attribute.name = key
             attribute.stringValue = value
@@ -108,7 +235,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
                     XMLattribute.name = "minimumScaleFactor"
                     XMLattribute.stringValue = "0.5"
                     currentNode.addAttribute(XMLattribute)
-                    if usingAspectRatioGlobal {
+                    if aspectRatioCheckBox.state == NSOnState {
                         currentView?.usingAspectRatio = true
                     }
                 }
@@ -149,7 +276,6 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         currentNode = newChild
     }
 
-    // didEndElement
     func parser(parser: NSXMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?)
     {
         if supportedViews.contains(elementName) {
@@ -195,101 +321,6 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         if let parent = currentNode.parent as? NSXMLElement {
             currentNode = parent
         }
-    }
-    
-    private func generateConstraints(currentView: View, constraintParentNode: NSXMLElement) {
-        // 4 constraints per child view
-        for index in 1...4 {
-            let constraintChild = NSXMLElement(name: "constraint")
-            var attributeData: [String : String] = [:]
-            //width
-            switch index {
-            case 1:
-                //WIDTH
-                // only if not using aspect ratio
-                if !currentView.usingAspectRatio {
-                    attributeData["firstItem"] = currentView.id
-                    attributeData["firstAttribute"] = "width"
-                    attributeData["secondItem"] = currentView.parentView?.id
-                    attributeData["secondAttribute"] = "width"
-                    attributeData["multiplier"] = "\(currentView.rect!.width)/\(currentView.parentView!.rect!.width)"
-                    attributeData["id"] = generateGUID()
-                }
-                else {
-                    continue
-                }
-            case 2:
-                //HEIGHT
-                attributeData["firstItem"] = currentView.id
-                attributeData["firstAttribute"] = "height"
-                attributeData["secondItem"] = currentView.parentView?.id
-                attributeData["secondAttribute"] = "height"
-                attributeData["multiplier"] = "\(currentView.rect!.height)/\(currentView.parentView!.rect!.height)"
-                attributeData["id"] = generateGUID()
-            case 3:
-                //TRAILING
-                if currentView.rect?.x <= 0 {
-                    //<constraint firstItem="CHILD ID" firstAttribute="leading" secondItem="PARENT ID" secondAttribute="leading" id="yx8-GH-Noo"/>
-                    attributeData["firstItem"] = currentView.id
-                    attributeData["firstAttribute"] = "leading"
-                    attributeData["secondItem"] = currentView.parentView?.id
-                    attributeData["secondAttribute"] = "leading"
-                    attributeData["id"] = generateGUID()
-                }
-                else {
-                    attributeData["firstAttribute"] = "trailing"
-                    attributeData["secondItem"] = currentView.id
-                    attributeData["secondAttribute"] = "leading"
-                    //Using ! due to string output being "Optional(132)" instead of "132"
-                    attributeData["multiplier"] = "\(currentView.parentView!.rect!.width)/\(currentView.rect!.x)"
-                    attributeData["id"] = generateGUID()
-                }
-            case 4:
-                //BOTTOM
-                if currentView.rect?.y == 0 {
-                    attributeData["firstItem"] = currentView.id
-                    attributeData["firstAttribute"] = "top"
-                    attributeData["secondItem"] = currentView.parentView?.id
-                    attributeData["secondAttribute"] = "top"
-                    attributeData["id"] = generateGUID()
-                }
-                else {
-                    attributeData["firstAttribute"] = "bottom"
-                    attributeData["secondItem"] = currentView.id
-                    attributeData["secondAttribute"] = "top"
-                    attributeData["multiplier"] = "\(currentView.parentView!.rect!.height)/\(currentView.rect!.y)"
-                    attributeData["id"] = generateGUID()
-                }
-            default:
-                assert(true, "shouldn't be any other case other than 1...4")
-            }
-            for attribute in attributeData {
-                let XMLattribute = NSXMLNode(kind: .AttributeKind)
-                XMLattribute.name = attribute.0
-                XMLattribute.stringValue = attribute.1
-                constraintChild.addAttribute(XMLattribute)
-            }
-            constraintParentNode.addChild(constraintChild)
-            attributeData = [:]
-        }
-    }
-    
-    private func generateGUID() -> String {
-        let allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        let allowedCharsCount = UInt32(allowedChars.characters.count)
-        var randomString = ""
-        
-        for index in (1...10) {
-            if index == 4 || index == 7 {
-                randomString += "-"
-            }
-            else {
-                let randomNum = Int(arc4random_uniform(allowedCharsCount))
-                let newCharacter = allowedChars[allowedChars.startIndex.advancedBy(randomNum)]
-                randomString += String(newCharacter)
-            }
-        }
-        return randomString
     }
 }
 
