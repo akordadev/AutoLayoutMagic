@@ -32,6 +32,7 @@ After Auto Layout Magic, your constraints will be created for you, and your view
 ## Installation
 
 OS X - Requires XCode
+
 Fork or clone the repository, open the project in XCode, build and run the tool.  Once it has been built you can run it at any time as an app.  This app will eventually be uploaded to the app store as a Developer Tool.
 
 ## Release History
