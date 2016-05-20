@@ -233,7 +233,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
                 if elementName == "imageView" {
                     let XMLattribute = NSXMLNode(kind: .AttributeKind)
                     XMLattribute.name = "minimumScaleFactor"
-                    XMLattribute.stringValue = "0.5"
+                    XMLattribute.stringValue = "0.4"
                     currentNode.addAttribute(XMLattribute)
                     if aspectRatioCheckBox.state == NSOnState {
                         currentView?.usingAspectRatio = true
