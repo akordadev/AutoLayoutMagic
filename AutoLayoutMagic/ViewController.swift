@@ -205,7 +205,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         let newChild = NSXMLElement(name: elementName)
         
         for (key, value) in attributeDict {
-            if elementName == "label" && key == "baselineAdjustment" {
+            if elementName == "label" && (key == "baselineAdjustment" || key == "adjustsFontSizeToFit") {
                 continue
             }
             let attribute = NSXMLNode(kind: .AttributeKind)
@@ -230,11 +230,11 @@ class ViewController: NSViewController, NSXMLParserDelegate {
                 }
                 currentView = view
                 currentView?.parentView = parentView
-                if elementName == "imageView" {
+                if elementName == "label" {
                     let XMLattribute = NSXMLNode(kind: .AttributeKind)
                     XMLattribute.name = "minimumScaleFactor"
                     XMLattribute.stringValue = "0.4"
-                    currentNode.addAttribute(XMLattribute)
+                    newChild.addAttribute(XMLattribute)
                     if aspectRatioCheckBox.state == NSOnState {
                         currentView?.usingAspectRatio = true
                     }
