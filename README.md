@@ -13,6 +13,10 @@ Auto Layout Magic will enable you to design on one screen, and the tool will gen
 
 ![](http://s32.postimg.org/exgxcuix1/Screen_Shot_2016_05_19_at_4_46_46_PM.png)
 
+## Swift 2 and 3 support!
+
+There is full support for Swift 3, thanks to the open source community!  There is also legacy support for Swift 2 by using the Swift_2 branch!
+
 ## Usage example
 
 [Check out this video](https://www.youtube.com/watch?v=rfUpann-zG4&feature=youtu.be), for an overview of how to use the tool!
@@ -37,6 +41,8 @@ Fork or clone the repository, open the project in XCode, build and run the tool.
 
 ## Release History
 
+* 1.1
+    * Added support for Swift 3.  Made a Swift_2 branch for legacy support
 * 1.0
     * Released Auto Layout Magic to the open source community
 
