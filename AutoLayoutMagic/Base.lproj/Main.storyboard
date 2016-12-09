@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1108" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -138,6 +139,7 @@
                         <subviews>
                             <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SvJ-Fb-hQp">
                                 <rect key="frame" x="81" y="174" width="318" height="24"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="Storyboard File Path" drawsBackground="YES" id="ZiE-Cr-NOi">
                                     <font key="font" metaFont="system" size="16"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -146,6 +148,7 @@
                             </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="e2D-S0-OdU">
                                 <rect key="frame" x="161" y="228" width="159" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Auto Layout Magic" id="66O-Aa-XNY">
                                     <font key="font" metaFont="system" size="18"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -154,7 +157,8 @@
                             </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uUQ-Qd-NHq">
                                 <rect key="frame" x="168" y="34" width="145" height="32"/>
-                                <buttonCell key="cell" type="push" title="Abracadabra!" bezelStyle="rounded" image="83323255-13C7-4A63-8C07-F349F130A17E" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="x1c-Jw-hI5">
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Abracadabra!" bezelStyle="rounded" image="9AAF7D14-407D-4C79-82D0-DAFE72BCA79A" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="x1c-Jw-hI5">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
@@ -164,6 +168,7 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9X1-2x-qkH">
                                 <rect key="frame" x="112" y="126" width="256" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Use aspect ratio for views with Images" bezelStyle="regularSquare" imagePosition="left" inset="2" id="hed-Tn-Guq">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -174,6 +179,7 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VLi-aL-tzy">
                                 <rect key="frame" x="162" y="103" width="63" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="radio" title="Height" bezelStyle="regularSquare" imagePosition="left" alignment="left" enabled="NO" state="on" inset="2" id="DiJ-Nk-cX7">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -184,12 +190,13 @@
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rme-Pu-edb">
                                 <rect key="frame" x="162" y="81" width="57" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="radio" title="Width" bezelStyle="regularSquare" imagePosition="left" alignment="left" enabled="NO" inset="2" id="W4h-Dq-WL1">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="widthRadioSelected:" target="XfG-lQ-9wD" id="KnX-MI-Sxg"/>
+                                    <action selector="widthRadioSelected:" target="XfG-lQ-9wD" id="t9m-zc-178"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -199,7 +206,6 @@
                         <outlet property="filePathTextField" destination="SvJ-Fb-hQp" id="fAS-uO-frF"/>
                         <outlet property="heightRadioButton" destination="VLi-aL-tzy" id="SU2-2O-n9M"/>
                         <outlet property="widthRadioButton" destination="Rme-Pu-edb" id="mua-06-B2j"/>
-                        <outlet property="widthRadioSelected" destination="Rme-Pu-edb" id="bc3-pC-q9P"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -208,7 +214,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="83323255-13C7-4A63-8C07-F349F130A17E" width="1" height="1">
+        <image name="9AAF7D14-407D-4C79-82D0-DAFE72BCA79A" width="1" height="1">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGPT5YJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK4HCBMU
 GR4fIyQrLjE3OlUkbnVsbNUJCgsMDQ4PEBESVk5TU2l6ZVYkY2xhc3NcTlNJbWFnZUZsYWdzVk5TUmVw
