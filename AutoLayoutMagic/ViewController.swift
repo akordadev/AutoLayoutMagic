@@ -102,22 +102,22 @@ class ViewController: NSViewController, XMLParserDelegate {
     
     // MARK: IBActions
     
-    @IBAction func aspectRatioCheck(_ sender: AnyObject) {
+    @IBAction func aspectRatioCheck(_ sender: NSButton) {
         widthRadioButton.isEnabled = aspectRatioCheckBox.state == NSOnState
         heightRadioButton.isEnabled = aspectRatioCheckBox.state == NSOnState
     }
     
-    @IBAction func generateLayoutButtonPressed(_ sender: AnyObject) {
+    @IBAction func generateLayoutButtonPressed(_ sender: NSButton) {
         beginParsing()
     }
     
-    @IBAction func heightRadioSelected(_ sender: AnyObject) {
+    @IBAction func heightRadioSelected(_ sender: NSButton) {
         widthRadioButton.state = NSOffState
         heightRadioButton.state = NSOnState
         aspectRatioHeight = true
     }
     
-    @IBAction func widthRadioSelected(_ sender: AnyObject) {
+    @IBAction func widthRadioSelected(_ sender: NSButton) {
         widthRadioButton.state = NSOnState
         heightRadioButton.state = NSOffState
         aspectRatioHeight = false
