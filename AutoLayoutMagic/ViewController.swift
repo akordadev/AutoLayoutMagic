@@ -8,6 +8,30 @@
 //  https://github.com/akordadev/AutoLayoutMagic/
 
 import Cocoa
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+// FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
+// Consider refactoring the code to use the non-optional operators.
+fileprivate func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l <= r
+  default:
+    return !(rhs < lhs)
+  }
+}
+
 
 struct Rectangle {
     let x: Int
@@ -30,7 +54,7 @@ class View {
     }
 }
 
-class ViewController: NSViewController, NSXMLParserDelegate {
+class ViewController: NSViewController, XMLParserDelegate {
 
     @IBOutlet weak var filePathTextField: NSTextField!
     @IBOutlet weak var aspectRatioCheckBox: NSButton!
@@ -41,68 +65,68 @@ class ViewController: NSViewController, NSXMLParserDelegate {
     var currentView: View? = nil
     //might not need parent, consider refactoring???
     var parentView: View? = nil
-    var currentNode = NSXMLElement(name: "document")
-    var outputXml: NSXMLDocument!
-    var parser = NSXMLParser()
+    var currentNode = XMLElement(name: "document")
+    var outputXml: XMLDocument!
+    var parser = XMLParser()
     var aspectRatioHeight = true
     
     let supportedViews = ["view", "imageView", "label", "button"]
     
-    private func beginParsing() {
+    fileprivate func beginParsing() {
         
-        outputXml = NSXMLDocument()
+        outputXml = XMLDocument()
         outputXml.version = "1.0"
         outputXml.characterEncoding = "UTF-8"
         
         guard let filePath = filePathTextField.accessibilityValue() else {
             return
         }
-        guard let xmlFile = NSData(contentsOfFile: filePath) else {
+        guard let xmlFile = try? Data(contentsOf: URL(fileURLWithPath: filePath)) else {
             let alert = NSAlert()
-            alert.alertStyle = NSAlertStyle.CriticalAlertStyle
+            alert.alertStyle = NSAlertStyle.critical
             alert.messageText = "File not found"
-            alert.addButtonWithTitle("Let me double check")
+            alert.addButton(withTitle: "Let me double check")
             alert.runModal()
             return
         }
-        parser = NSXMLParser(data: xmlFile)
+        parser = XMLParser(data: xmlFile)
         parser.delegate = self
         parser.parse()
         
-        let prettyOutput = outputXml.XMLStringWithOptions(Int(NSXMLNodePrettyPrint))
+        let prettyOutput = outputXml.xmlString(withOptions: Int(XMLNode.Options.nodePrettyPrint.rawValue))
         
         //create file
-        let fileManager = NSFileManager()
-        fileManager.createFileAtPath(filePath, contents: prettyOutput.dataUsingEncoding(NSUTF8StringEncoding), attributes: nil)
+        let fileManager = FileManager()
+        fileManager.createFile(atPath: filePath, contents: prettyOutput.data(using: String.Encoding.utf8), attributes: nil)
     }
     
     // MARK: IBActions
     
-    @IBAction func aspectRatioCheck(sender: AnyObject) {
-        widthRadioButton.enabled = aspectRatioCheckBox.state == NSOnState
-        heightRadioButton.enabled = aspectRatioCheckBox.state == NSOnState
+    @IBAction func aspectRatioCheck(_ sender: AnyObject) {
+        widthRadioButton.isEnabled = aspectRatioCheckBox.state == NSOnState
+        heightRadioButton.isEnabled = aspectRatioCheckBox.state == NSOnState
     }
     
-    @IBAction func generateLayoutButtonPressed(sender: AnyObject) {
+    @IBAction func generateLayoutButtonPressed(_ sender: AnyObject) {
         beginParsing()
     }
     
-    @IBAction func heightRadioSelected(sender: AnyObject) {
+    @IBAction func heightRadioSelected(_ sender: AnyObject) {
         widthRadioButton.state = NSOffState
         heightRadioButton.state = NSOnState
         aspectRatioHeight = true
     }
     
-    @IBAction func widthRadioSelected(sender: AnyObject) {
+    @IBAction func widthRadioSelected(_ sender: AnyObject) {
         widthRadioButton.state = NSOnState
         heightRadioButton.state = NSOffState
         aspectRatioHeight = false
     }
     
-    private func generateConstraints(currentView: View, constraintParentNode: NSXMLElement) {
+    fileprivate func generateConstraints(_ currentView: View, constraintParentNode: XMLElement) {
         // 4 constraints per child view
         for index in 1...4 {
-            let constraintChild = NSXMLElement(name: "constraint")
+            let constraintChild = XMLElement(name: "constraint")
             var attributeData: [String : String] = [:]
             //width
             switch index {
@@ -170,7 +194,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
                 assert(true, "shouldn't be any other case other than 1...4")
             }
             for attribute in attributeData {
-                let XMLattribute = NSXMLNode(kind: .AttributeKind)
+                let XMLattribute = XMLNode(kind: .attribute)
                 XMLattribute.name = attribute.0
                 XMLattribute.stringValue = attribute.1
                 constraintChild.addAttribute(XMLattribute)
@@ -180,7 +204,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         }
     }
     
-    private func generateGUID() -> String {
+    fileprivate func generateGUID() -> String {
         let allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         let allowedCharsCount = UInt32(allowedChars.characters.count)
         var randomString = ""
@@ -191,7 +215,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
             }
             else {
                 let randomNum = Int(arc4random_uniform(allowedCharsCount))
-                let newCharacter = allowedChars[allowedChars.startIndex.advancedBy(randomNum)]
+                let newCharacter = allowedChars[allowedChars.characters.index(allowedChars.startIndex, offsetBy: randomNum)]
                 randomString += String(newCharacter)
             }
         }
@@ -200,15 +224,15 @@ class ViewController: NSViewController, NSXMLParserDelegate {
     
     // MARK:  NSXMLParserDelegate Functions
     
-    func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String]) {
+    func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String]) {
 
-        let newChild = NSXMLElement(name: elementName)
+        let newChild = XMLElement(name: elementName)
         
         for (key, value) in attributeDict {
             if elementName == "label" && (key == "baselineAdjustment" || key == "adjustsFontSizeToFit") {
                 continue
             }
-            let attribute = NSXMLNode(kind: .AttributeKind)
+            let attribute = XMLNode(kind: .attribute)
             attribute.name = key
             attribute.stringValue = value
             newChild.addAttribute(attribute)
@@ -231,7 +255,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
                 currentView = view
                 currentView?.parentView = parentView
                 if elementName == "label" {
-                    let XMLattribute = NSXMLNode(kind: .AttributeKind)
+                    let XMLattribute = XMLNode(kind: .attribute)
                     XMLattribute.name = "minimumScaleFactor"
                     XMLattribute.stringValue = "0.4"
                     newChild.addAttribute(XMLattribute)
@@ -248,13 +272,13 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         //should be next element right after "view"
         else if elementName == "rect" {
             if let parent = newChild.parent,
-                    parentName = parent.name where supportedViews.contains(parentName)
+                    let parentName = parent.name, supportedViews.contains(parentName)
             {
                 //Float cast due to "0.0" in some X,Y coords in .storyboard file
                 if let x = Float(attributeDict["x"]!),
-                        y = Float(attributeDict["y"]!),
-                        width = Int(attributeDict["width"]!),
-                        height = Int(attributeDict["height"]!)
+                        let y = Float(attributeDict["y"]!),
+                        let width = Int(attributeDict["width"]!),
+                        let height = Int(attributeDict["height"]!)
                 {
                     let rect = Rectangle(x: Int(x), y: Int(y), width: width, height: height)
                     currentView?.rect = rect
@@ -265,7 +289,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         // for determining if buttons have a BG image, therefore should use aspect ratio
         else if elementName == "state" {
             if let parent = newChild.parent,
-                parentName = parent.name where parentName == "button"
+                let parentName = parent.name, parentName == "button"
             {
                 if let _ = attributeDict["image"] {
                     currentView?.usingAspectRatio = true
@@ -276,12 +300,12 @@ class ViewController: NSViewController, NSXMLParserDelegate {
         currentNode = newChild
     }
 
-    func parser(parser: NSXMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?)
+    func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?)
     {
         if supportedViews.contains(elementName) {
-            if let currentView = currentView where currentView.childViews.count > 0 {
+            if let currentView = currentView, currentView.childViews.count > 0 {
                 //add constraints
-                let constraintParent = NSXMLElement(name: "constraints")
+                let constraintParent = XMLElement(name: "constraints")
                 currentNode.addChild(constraintParent)
                 for childView in currentView.childViews {
                     generateConstraints(childView, constraintParentNode: constraintParent)
@@ -291,10 +315,10 @@ class ViewController: NSViewController, NSXMLParserDelegate {
             //aspect ratio
             else {
                 // <constraint firstAttribute="width" secondItem="Xf3-5x-I0k" secondAttribute="height" multiplier="5:2" id="LdZ-O7-Tcn"/>
-                if let currentView = currentView where currentView.usingAspectRatio {
-                    let constraintParent = NSXMLElement(name: "constraints")
+                if let currentView = currentView, currentView.usingAspectRatio {
+                    let constraintParent = XMLElement(name: "constraints")
                     currentNode.addChild(constraintParent)
-                    let constraintChild = NSXMLElement(name: "constraint")
+                    let constraintChild = XMLElement(name: "constraint")
                     var attributeData: [String : String] = [:]
                     attributeData["firstAttribute"] = "width"
                     attributeData["secondItem"] = currentView.id
@@ -303,7 +327,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
                     attributeData["id"] = generateGUID()
                     
                     for attribute in attributeData {
-                        let XMLattribute = NSXMLNode(kind: .AttributeKind)
+                        let XMLattribute = XMLNode(kind: .attribute)
                         XMLattribute.name = attribute.0
                         XMLattribute.stringValue = attribute.1
                         constraintChild.addAttribute(XMLattribute)
@@ -318,7 +342,7 @@ class ViewController: NSViewController, NSXMLParserDelegate {
             parentView = currentView?.parentView
             
         }
-        if let parent = currentNode.parent as? NSXMLElement {
+        if let parent = currentNode.parent as? XMLElement {
             currentNode = parent
         }
     }
