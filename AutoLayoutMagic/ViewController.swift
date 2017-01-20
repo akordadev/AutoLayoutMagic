@@ -277,10 +277,10 @@ class ViewController: NSViewController, XMLParserDelegate {
                 //Float cast due to "0.0" in some X,Y coords in .storyboard file
                 if let x = Float(attributeDict["x"]!),
                         let y = Float(attributeDict["y"]!),
-                        let width = Int(attributeDict["width"]!),
-                        let height = Int(attributeDict["height"]!)
+                        let width = Float(attributeDict["width"]!),
+                        let height = Float(attributeDict["height"]!)
                 {
-                    let rect = Rectangle(x: Int(x), y: Int(y), width: width, height: height)
+                    let rect = Rectangle(x: Int(x), y: Int(y), width: Int(width), height: Int(height))
                     currentView?.rect = rect
                 }
             }
