@@ -48,7 +48,7 @@ Fork or clone the repository, open the project in XCode, build and run the tool.
 
 ## Meta
 
-Akorda – [@DevAkorda](https://twitter.com/DevAkorda) – akordadev@gmail.com
+Akorda – [@AkordaDev](https://twitter.com/AkordaDev) – akordadev@gmail.com
 
 Distributed under the MIT license. See ``LICENSE`` for more information.
 
