@@ -1,0 +1,8 @@
+title: Auto Layout Magic
+description: Build 1 scene, let Auto Layout Magic generate the constraints for you!
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-slate
+
+gems:
+  - jekyll-mentions
